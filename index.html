@@ -1,0 +1,764 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Learning Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      const ChevronDown = ({ size = 16 }) => <span style={{display:'inline-block', width: size}}>▾</span>;
+      const ChevronRight = ({ size = 16 }) => <span style={{display:'inline-block', width: size}}>▸</span>;
+      const Plus = ({ size = 16 }) => <span style={{display:'inline-block', width: size}}>＋</span>;
+      const BookOpen = ({ size = 16 }) => <span style={{display:'inline-block', width: size}}>📘</span>;
+      const Trophy = ({ size = 16 }) => <span style={{display:'inline-block', width: size}}>🏆</span>;
+      const Trash2 = ({ size = 16 }) => <span style={{display:'inline-block', width: size}}>🗑️</span>;
+
+      const LearningTracker = () => {
+        const [topics, setTopics] = useState([]);
+        const [showAddModal, setShowAddModal] = useState(false);
+        const [showBulkAddModal, setShowBulkAddModal] = useState(false);
+        const [newTopicText, setNewTopicText] = useState('');
+        const [loading, setLoading] = useState(true);
+        const [showResetModal, setShowResetModal] = useState(false);
+        const [newTopic, setNewTopic] = useState({ name: '', level: 2, parentId: null });
+
+  // Load data from storage on mount
+  useEffect(() => {
+    loadTopics();
+  }, []);
+
+  const loadTopics = async () => {
+    try {
+      const result = await window.storage.get('learning-topics');
+      if (result && result.value) {
+        setTopics(JSON.parse(result.value));
+      } else {
+        // Set default structure if no data exists
+        setTopics(getDefaultStructure());
+      }
+    } catch (error) {
+      console.log('No existing data, using defaults');
+      setTopics(getDefaultStructure());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveTopics = async (newTopics) => {
+    try {
+      await window.storage.set('learning-topics', JSON.stringify(newTopics));
+    } catch (error) {
+      console.error('Failed to save:', error);
+    }
+  };
+
+  const getDefaultStructure = () => [
+    {
+      id: '1',
+      name: 'DevOps',
+      level: 1,
+      children: [
+        {
+          id: '1.1',
+          name: 'Fundamentals',
+          level: 2,
+          children: [
+            { id: '1.1.1', name: 'What is DevOps?', level: 3, completed: false },
+            { id: '1.1.2', name: 'DevOps Culture and Principles', level: 3, completed: false },
+            { id: '1.1.3', name: 'DevOps Lifecycle', level: 3, completed: false },
+            { id: '1.1.4', name: 'Agile vs DevOps', level: 3, completed: false },
+            { id: '1.1.5', name: 'CI/CD Overview', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.2',
+          name: 'Linux & Operating Systems',
+          level: 2,
+          children: [
+            { id: '1.2.1', name: 'Linux File System', level: 3, completed: false },
+            { id: '1.2.2', name: 'Basic Linux Commands', level: 3, completed: false },
+            { id: '1.2.3', name: 'File Permissions', level: 3, completed: false },
+            { id: '1.2.4', name: 'Process Management', level: 3, completed: false },
+            { id: '1.2.5', name: 'Package Management', level: 3, completed: false },
+            { id: '1.2.6', name: 'Shell Scripting Basics', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.3',
+          name: 'Version Control',
+          level: 2,
+          children: [
+            { id: '1.3.1', name: 'What is Version Control', level: 3, completed: false },
+            { id: '1.3.2', name: 'Git Basics', level: 3, completed: false },
+            { id: '1.3.3', name: 'Git Workflow', level: 3, completed: false },
+            { id: '1.3.4', name: 'Branching and Merging', level: 3, completed: false },
+            { id: '1.3.5', name: 'GitHub / GitLab Basics', level: 3, completed: false },
+            { id: '1.3.6', name: 'Pull Requests and Code Reviews', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.4',
+          name: 'Networking Basics',
+          level: 2,
+          children: [
+            { id: '1.4.1', name: 'OSI Model', level: 3, completed: false },
+            { id: '1.4.2', name: 'TCP/IP', level: 3, completed: false },
+            { id: '1.4.3', name: 'DNS', level: 3, completed: false },
+            { id: '1.4.4', name: 'HTTP vs HTTPS', level: 3, completed: false },
+            { id: '1.4.5', name: 'Load Balancing Basics', level: 3, completed: false },
+            { id: '1.4.6', name: 'Firewalls', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.5',
+          name: 'CI/CD',
+          level: 2,
+          children: [
+            { id: '1.5.1', name: 'Continuous Integration', level: 3, completed: false },
+            { id: '1.5.2', name: 'Continuous Deployment', level: 3, completed: false },
+            { id: '1.5.3', name: 'CI/CD Pipelines', level: 3, completed: false },
+            { id: '1.5.4', name: 'Jenkins Basics', level: 3, completed: false },
+            { id: '1.5.5', name: 'GitHub Actions', level: 3, completed: false },
+            { id: '1.5.6', name: 'GitLab CI', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.6',
+          name: 'Containers',
+          level: 2,
+          children: [
+            { id: '1.6.1', name: 'What is Containerization', level: 3, completed: false },
+            { id: '1.6.2', name: 'Docker Architecture', level: 3, completed: false },
+            { id: '1.6.3', name: 'Docker Images', level: 3, completed: false },
+            { id: '1.6.4', name: 'Docker Containers', level: 3, completed: false },
+            { id: '1.6.5', name: 'Dockerfile', level: 3, completed: false },
+            { id: '1.6.6', name: 'Docker Compose', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.7',
+          name: 'Container Orchestration',
+          level: 2,
+          children: [
+            { id: '1.7.1', name: 'What is Kubernetes', level: 3, completed: false },
+            { id: '1.7.2', name: 'Kubernetes Architecture', level: 3, completed: false },
+            { id: '1.7.3', name: 'Pods', level: 3, completed: false },
+            { id: '1.7.4', name: 'Services', level: 3, completed: false },
+            { id: '1.7.5', name: 'Deployments', level: 3, completed: false },
+            { id: '1.7.6', name: 'ConfigMaps and Secrets', level: 3, completed: false },
+            { id: '1.7.7', name: 'Helm Basics', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.8',
+          name: 'Cloud Computing',
+          level: 2,
+          children: [
+            { id: '1.8.1', name: 'Cloud Computing Basics', level: 3, completed: false },
+            { id: '1.8.2', name: 'IaaS vs PaaS vs SaaS', level: 3, completed: false },
+            { id: '1.8.3', name: 'AWS Overview', level: 3, completed: false },
+            { id: '1.8.4', name: 'EC2', level: 3, completed: false },
+            { id: '1.8.5', name: 'S3', level: 3, completed: false },
+            { id: '1.8.6', name: 'IAM Basics', level: 3, completed: false },
+            { id: '1.8.7', name: 'VPC Basics', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.9',
+          name: 'Infrastructure as Code (IaC)',
+          level: 2,
+          children: [
+            { id: '1.9.1', name: 'What is Infrastructure as Code', level: 3, completed: false },
+            { id: '1.9.2', name: 'Terraform Basics', level: 3, completed: false },
+            { id: '1.9.3', name: 'Terraform Providers', level: 3, completed: false },
+            { id: '1.9.4', name: 'Terraform State', level: 3, completed: false },
+            { id: '1.9.5', name: 'Terraform Modules', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.10',
+          name: 'Configuration Management',
+          level: 2,
+          children: [
+            { id: '1.10.1', name: 'Configuration Management Basics', level: 3, completed: false },
+            { id: '1.10.2', name: 'Ansible Basics', level: 3, completed: false },
+            { id: '1.10.3', name: 'Playbooks', level: 3, completed: false },
+            { id: '1.10.4', name: 'Roles', level: 3, completed: false },
+            { id: '1.10.5', name: 'Inventory Management', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.11',
+          name: 'Monitoring & Logging',
+          level: 2,
+          children: [
+            { id: '1.11.1', name: 'Monitoring Concepts', level: 3, completed: false },
+            { id: '1.11.2', name: 'Prometheus Basics', level: 3, completed: false },
+            { id: '1.11.3', name: 'Grafana Dashboards', level: 3, completed: false },
+            { id: '1.11.4', name: 'Logging Basics', level: 3, completed: false },
+            { id: '1.11.5', name: 'ELK Stack Overview', level: 3, completed: false },
+            { id: '1.11.6', name: 'Alerting', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.12',
+          name: 'Security & DevSecOps',
+          level: 2,
+          children: [
+            { id: '1.12.1', name: 'DevSecOps Overview', level: 3, completed: false },
+            { id: '1.12.2', name: 'Secrets Management', level: 3, completed: false },
+            { id: '1.12.3', name: 'Vulnerability Scanning', level: 3, completed: false },
+            { id: '1.12.4', name: 'Container Security', level: 3, completed: false },
+            { id: '1.12.5', name: 'IAM Best Practices', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.13',
+          name: 'Testing & Quality',
+          level: 2,
+          children: [
+            { id: '1.13.1', name: 'Unit Testing Basics', level: 3, completed: false },
+            { id: '1.13.2', name: 'Integration Testing', level: 3, completed: false },
+            { id: '1.13.3', name: 'Performance Testing', level: 3, completed: false },
+            { id: '1.13.4', name: 'Security Testing', level: 3, completed: false }
+          ]
+        },
+        {
+          id: '1.14',
+          name: 'Real-World Practices',
+          level: 2,
+          children: [
+            { id: '1.14.1', name: 'Blue-Green Deployment', level: 3, completed: false },
+            { id: '1.14.2', name: 'Canary Deployment', level: 3, completed: false },
+            { id: '1.14.3', name: 'Rollback Strategies', level: 3, completed: false },
+            { id: '1.14.4', name: 'High Availability', level: 3, completed: false },
+            { id: '1.14.5', name: 'Disaster Recovery', level: 3, completed: false }
+          ]
+        }
+      ]
+    }
+  ];
+
+  const calculateProgress = (topic) => {
+    if (!topic.children || topic.children.length === 0) {
+      return topic.completed ? 100 : 0;
+    }
+
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    const countTasks = (node) => {
+      if (!node.children || node.children.length === 0) {
+        totalTasks++;
+        if (node.completed) completedTasks++;
+      } else {
+        node.children.forEach(countTasks);
+      }
+    };
+
+    topic.children.forEach(countTasks);
+    return totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  };
+
+  const toggleComplete = (topicId) => {
+    const updateTopics = (items) => {
+      return items.map(item => {
+        if (item.id === topicId) {
+          return { ...item, completed: !item.completed };
+        }
+        if (item.children) {
+          return { ...item, children: updateTopics(item.children) };
+        }
+        return item;
+      });
+    };
+
+    const updated = updateTopics(topics);
+    setTopics(updated);
+    saveTopics(updated);
+  };
+
+  const parseCustomFormat = (text) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    const result = [];
+    const stack = [{ children: result, level: 0 }];
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      
+      // Check for heading levels
+      const headingMatch = trimmed.match(/^(#{1,6})\s+(.+)/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const name = headingMatch[2];
+        
+        while (stack.length > 1 && stack[stack.length - 1].level >= level) {
+          stack.pop();
+        }
+        
+        const newTopic = {
+          id: Date.now().toString() + Math.random(),
+          name,
+          level,
+          children: []
+        };
+        
+        stack[stack.length - 1].children.push(newTopic);
+        stack.push({ ...newTopic, level });
+      }
+      
+      // Check for checkbox items
+      const checkboxMatch = trimmed.match(/^-\s+\[\s*\]\s+(.+)/);
+      if (checkboxMatch) {
+        const name = checkboxMatch[1];
+        const newTask = {
+          id: Date.now().toString() + Math.random(),
+          name,
+          level: stack[stack.length - 1].level + 1,
+          completed: false
+        };
+        
+        stack[stack.length - 1].children.push(newTask);
+      }
+    });
+
+    return result;
+  };
+
+  const addCustomTopics = () => {
+    if (!newTopicText.trim()) return;
+    
+    const parsed = parseCustomFormat(newTopicText);
+    const updated = [...topics, ...parsed];
+    setTopics(updated);
+    saveTopics(updated);
+    setNewTopicText('');
+    setShowAddModal(false);
+  };
+
+  const resetToDefault = async () => {
+    const defaultTopics = getDefaultStructure();
+    setTopics(defaultTopics);
+    await saveTopics(defaultTopics);
+    setShowResetModal(false);
+  };
+
+  const addManualTopic = () => {
+    if (!newTopic.name.trim()) return;
+
+    const generateId = () => Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9);
+    
+    const newItem = {
+      id: generateId(),
+      name: newTopic.name.trim(),
+      level: newTopic.level,
+      ...(newTopic.level === 3 ? { completed: false } : { children: [] })
+    };
+
+    if (!newTopic.parentId) {
+      // Add as top-level topic
+      const updated = [...topics, newItem];
+      setTopics(updated);
+      saveTopics(updated);
+    } else {
+      // Add under specific parent
+      const addToParent = (items) => {
+        return items.map(item => {
+          if (item.id === newTopic.parentId) {
+            if (!item.children) {
+              item.children = [];
+            }
+            return {
+              ...item,
+              children: [...item.children, newItem]
+            };
+          }
+          if (item.children && item.children.length > 0) {
+            return { ...item, children: addToParent(item.children) };
+          }
+          return item;
+        });
+      };
+
+      const updated = addToParent(topics);
+      setTopics(updated);
+      saveTopics(updated);
+    }
+
+    setNewTopic({ name: '', level: 2, parentId: null });
+    setShowAddModal(false);
+  };
+
+  const getAllParentOptions = (items, depth = 0) => {
+    let options = [];
+    items.forEach(item => {
+      if (item.children) {
+        options.push({ id: item.id, name: item.name, depth });
+        if (item.children) {
+          options = [...options, ...getAllParentOptions(item.children, depth + 1)];
+        }
+      }
+    });
+    return options;
+  };
+
+  const deleteTopic = (topicId) => {
+    const removeFromTree = (items) => {
+      return items.filter(item => {
+        if (item.id === topicId) {
+          return false;
+        }
+        if (item.children) {
+          item.children = removeFromTree(item.children);
+        }
+        return true;
+      });
+    };
+
+    const updated = removeFromTree(topics);
+    setTopics(updated);
+    saveTopics(updated);
+  };
+
+  const TopicNode = ({ topic, depth = 0 }) => {
+    const [expanded, setExpanded] = useState(depth < 2);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const hasChildren = topic.children && topic.children.length > 0;
+    const progress = calculateProgress(topic);
+
+    return (
+      <div className="mb-2">
+        <div
+          className={`flex items-center gap-2 p-3 rounded-lg transition-all ${
+            depth === 0 ? 'bg-blue-50 border border-blue-200' :
+            depth === 1 ? 'bg-purple-50 border border-purple-200' :
+            depth === 2 ? 'bg-green-50 border border-green-200' :
+            'bg-gray-50 hover:bg-gray-100'
+          }`}
+          style={{ marginLeft: `${depth * 20}px` }}
+        >
+          {hasChildren && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="p-1 hover:bg-white rounded transition-colors"
+            >
+              {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+            </button>
+          )}
+          
+          {!hasChildren && (
+            <input
+              type="checkbox"
+              checked={topic.completed || false}
+              onChange={() => toggleComplete(topic.id)}
+              className="w-5 h-5 cursor-pointer"
+            />
+          )}
+          
+          <span className={`flex-1 font-medium ${topic.completed ? 'line-through text-gray-500' : ''}`}>
+            {topic.name}
+          </span>
+          
+          {hasChildren && (
+            <div className="flex items-center gap-2">
+              <div className="w-32 bg-gray-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-sm font-semibold text-gray-700 w-12 text-right">
+                {progress}%
+              </span>
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="p-1.5 hover:bg-red-100 rounded transition-colors text-red-600"
+            title="Delete this topic"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
+
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
+              <h3 className="text-xl font-bold mb-3 text-red-600">Delete Topic?</h3>
+              <p className="text-gray-700 mb-2">
+                Are you sure you want to delete <strong>{topic.name}</strong>?
+              </p>
+              {hasChildren && (
+                <p className="text-sm text-red-600 mb-4">
+                  ⚠️ This will also delete all subtopics and tasks inside it!
+                </p>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    deleteTopic(topic.id);
+                    setShowDeleteConfirm(false);
+                  }}
+                  className="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {hasChildren && expanded && (
+          <div className="mt-1">
+            {topic.children.map(child => (
+              <TopicNode key={child.id} topic={child} depth={depth + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const overallProgress = topics.length > 0 ? 
+    Math.round(topics.reduce((sum, t) => sum + calculateProgress(t), 0) / topics.length) : 0;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading your progress...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <BookOpen className="text-blue-600" size={32} />
+              <h1 className="text-3xl font-bold text-gray-800">Learning Progress Tracker</h1>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowResetModal(true)}
+                className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Reset Progress
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Plus size={20} />
+                Add Topic
+              </button>
+              <button
+                onClick={() => setShowBulkAddModal(true)}
+                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus size={20} />
+                Bulk Add
+              </button>
+            </div>
+          </div>
+          
+          {/* Overall Progress */}
+          <div className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-6 text-white">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Trophy size={24} />
+                <span className="text-lg font-semibold">Overall Progress</span>
+              </div>
+              <span className="text-3xl font-bold">{overallProgress}%</span>
+            </div>
+            <div className="w-full bg-white bg-opacity-30 rounded-full h-3">
+              <div
+                className="bg-white h-3 rounded-full transition-all"
+                style={{ width: `${overallProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Topics */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+          {topics.map(topic => (
+            <TopicNode key={topic.id} topic={topic} />
+          ))}
+        </div>
+
+        {/* Add Single Topic Modal */}
+        {showAddModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+              <h2 className="text-2xl font-bold mb-4">Add New Topic</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Topic Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newTopic.name}
+                    onChange={(e) => setNewTopic({ ...newTopic, name: e.target.value })}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder="e.g., Docker Networking"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Topic Type
+                  </label>
+                  <select
+                    value={newTopic.level}
+                    onChange={(e) => setNewTopic({ ...newTopic, level: parseInt(e.target.value) })}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value={1}>Main Category (can have subcategories)</option>
+                    <option value={2}>Subcategory (can have topics)</option>
+                    <option value={3}>Topic/Task (checkbox item)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Add Under (Optional)
+                  </label>
+                  <select
+                    value={newTopic.parentId || ''}
+                    onChange={(e) => setNewTopic({ ...newTopic, parentId: e.target.value || null })}
+                    className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                  >
+                    <option value="">Top Level</option>
+                    {getAllParentOptions(topics).map(opt => (
+                      <option key={opt.id} value={opt.id}>
+                        {'  '.repeat(opt.depth)}└─ {opt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={addManualTopic}
+                  className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                >
+                  Add Topic
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddModal(false);
+                    setNewTopic({ name: '', level: 2, parentId: null });
+                  }}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Add Topic Modal */}
+        {showBulkAddModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+              <h2 className="text-2xl font-bold mb-4">Bulk Add Topics</h2>
+              <p className="text-gray-600 mb-4">
+                Use custom formatting: # for main topics, ## for subtopics, - [ ] for tasks
+              </p>
+              
+              <div className="bg-gray-50 p-3 rounded-lg mb-4 text-sm">
+                <div className="font-mono text-gray-700">
+                  # React Hooks<br/>
+                  ## State Management<br/>
+                  - [ ] useState<br/>
+                  - [ ] useEffect<br/>
+                  - [ ] useContext
+                </div>
+              </div>
+
+              <textarea
+                value={newTopicText}
+                onChange={(e) => setNewTopicText(e.target.value)}
+                className="w-full h-64 p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono"
+                placeholder="Enter your topics here..."
+              />
+              
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={addCustomTopics}
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                  Add Topics
+                </button>
+                <button
+                  onClick={() => {
+                    setShowBulkAddModal(false);
+                    setNewTopicText('');
+                  }}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Reset Confirmation Modal */}
+        {showResetModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+              <h2 className="text-2xl font-bold mb-4 text-red-600">Reset Progress?</h2>
+              <p className="text-gray-700 mb-6">
+                This will delete all your current progress and reload the default DevOps curriculum. This action cannot be undone.
+              </p>
+              
+              <div className="flex gap-3">
+                <button
+                  onClick={resetToDefault}
+                  className="flex-1 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                >
+                  Yes, Reset
+                </button>
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+      };
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<LearningTracker />);
+    </script>
+  </body>
+</html>

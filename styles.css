@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Poppins:wght@300;400;600&display=swap');
+
+:root{
+  --bg: #0d0d0d;
+  --panel: rgba(18,18,18,0.9);
+  --muted: #9aa0a6;
+  --text: #e6e6e9;
+  --accent: #a64ca6; /* neon purple */
+  --accent-2: #9b59b6;
+  --glass: rgba(255,255,255,0.03);
+  --radius: 12px;
+}
+
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;padding:24px;background:var(--bg);color:var(--text);
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+
+/* Make main containers darker and add neon accents without touching structure */
+:root{
+  --bg: #0d0d0d;
+  --panel: rgba(18,18,18,0.9);
+  --muted: #9aa0a6;
+  --text: #e6e6e9;
+  --accent: #a64ca6; /* neon purple */
+  --accent-2: #9b59b6;
+  --glass: rgba(255,255,255,0.03);
+  --radius: 12px;
+  --card-padding: 12px; /* tightened spacing */
+}
+/* Shadow / glow */
+.shadow-lg{box-shadow: 0 6px 18px rgba(16,12,30,0.55), 0 0 18px rgba(166,76,166,0.05) !important}
+
+h1, h2, h3, h4{font-family:'Montserrat', 'Poppins', sans-serif;color:var(--accent)}
+
+/* Typography hierarchy */
+h1{font-size:28px;line-height:1.05;color:var(--text);font-weight:700}
+h2{font-size:18px;color:var(--accent);font-weight:600}
+.topic-name{font-size:16px;font-weight:600;color:var(--text)}
+
+.progress-percent{font-weight:700;color:var(--accent-2)}
+h1, h2, h3, h4{font-family:'Montserrat', 'Poppins', sans-serif;color:var(--accent)}
+.p-6, .p-8, .p-4, .p-3{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03);padding:var(--card-padding)}
+.text-gray-800, .text-gray-600, .text-gray-700{color:var(--text) !important}
+.mb-6, .mb-4, .mb-2{margin-bottom:8px}
+
+/* Reduce spacing for list items and cards */
+.task{padding:10px}
+.TopicNode, .mb-2{margin-bottom:8px}
+
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 4px 14px rgba(166,76,166,0.14);transition:width .5s cubic-bezier(.2,.9,.2,1)}
+
+[style*="width:"]{transition: width .6s cubic-bezier(.2,.9,.2,1) !important}
+
+/* Ensure good contrast on light/pastel containers (Tailwind bg-*-50, bg-white, etc.) */
+.bg-blue-50, .bg-purple-50, .bg-green-50, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-white {
+  color: #0b1220 !important; /* near-black for best contrast on pastel backgrounds */
+}
+
+/* Specific selectors for topic titles/labels inside pale containers */
+.bg-blue-50 .topic-name, .bg-purple-50 .topic-name, .bg-green-50 .topic-name,
+.bg-gray-50 .topic-name, .bg-white .topic-name {
+  color: #0b1220 !important;
+}
+
+/* Also ensure utility text classes inside pale boxes become dark */
+.bg-blue-50 .text-gray-700, .bg-purple-50 .text-gray-700, .bg-green-50 .text-gray-700,
+.bg-gray-50 .text-gray-700, .bg-white .text-gray-700 {
+  color: #0b1220 !important;
+}
+
+/* Accordion animation */
+.accordion{max-height:0;overflow:hidden;transition:max-height .36s ease,opacity .28s ease;padding:0}
+.accordion.open{max-height:2000px;padding-top:8px;padding-bottom:8px}
+.accordion .inner{padding-left:8px}
+
+/* Buttons — keep semantics but restyle visuals */
+button, .btn, input[type=button], input[type=submit]{
+  background: linear-gradient(135deg, rgba(166,76,166,0.18), rgba(155,89,182,0.08));
+  border: 1px solid rgba(166,76,166,0.12);
+  color:var(--text);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;
+  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+}
+button:hover, .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(166,76,166,0.12)}
+button:focus{outline:3px solid rgba(166,76,166,0.14);outline-offset:4px}
+
+/* Inputs & selects */
+input, textarea, select{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:var(--text);transition:box-shadow .15s ease,border-color .15s ease}
+input:focus, textarea:focus, select:focus{box-shadow:0 8px 30px rgba(166,76,166,0.08);border-color:var(--accent);outline:none}
+
+/* Custom checkbox visuals while preserving native behavior */
+input[type="checkbox"]{
+  appearance:none;-webkit-appearance:none;
+  width:22px;height:22px;border-radius:8px;
+  border:2px solid rgba(15,23,36,0.14);
+  background:#ffffff; /* visible base */
+  box-shadow:0 4px 10px rgba(2,6,23,0.35);
+  position:relative;cursor:pointer;vertical-align:middle;display:inline-block;flex:0 0 auto
+}
+input[type="checkbox"]:focus{box-shadow:0 0 0 6px rgba(166,76,166,0.14), 0 4px 12px rgba(2,6,23,0.35)}
+input[type="checkbox"]:checked{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;
+  box-shadow:0 8px 28px rgba(166,76,166,0.28),0 0 10px rgba(155,89,182,0.14) inset
+}
+/* Draw a crisp checkmark using borders for consistent scaling */
+input[type="checkbox"]::after{
+  content:'';position:absolute;left:50%;top:50%;width:10px;height:6px;transform:translate(-50%,-60%) rotate(-45deg);
+  border-left:2.5px solid transparent;border-bottom:2.5px solid transparent;opacity:0;transition:opacity .12s ease, border-color .12s ease, transform .12s ease
+}
+input[type="checkbox"]:checked::after{border-left-color:#fff;border-bottom-color:#fff;opacity:1}
+
+/* Ensure checkboxes remain visible on pale/light utility backgrounds */
+.bg-blue-50 input[type="checkbox"], .bg-purple-50 input[type="checkbox"], .bg-green-50 input[type="checkbox"],
+.bg-gray-50 input[type="checkbox"], .bg-gray-100 input[type="checkbox"], .bg-white input[type="checkbox"]{
+  border-color: rgba(15,23,36,0.22);
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(2,6,23,0.18) inset;
+}
+
+/* When a checkbox sits on a very dark panel, give it a subtle tinted background */
+.min-h-screen .bg-white input[type="checkbox"], .bg-white input[type="checkbox"]{background:#fff}
+
+/* Cards and list items */
+.p-6, .p-8, .p-4, .p-3{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03)}
+.mb-6, .mb-4, .mb-2{margin-bottom:12px}
+
+.flex{display:flex}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+
+/* Progress bars */
+.bg-white.bg-opacity-30, .bg-white.bg-opacity-30 > div{background:transparent !important}
+.w-full.bg-white.bg-opacity-30{background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:999px;border:1px solid rgba(255,255,255,0.03)}
+.bg-white.h-3.rounded-full > .bg-white.h-3.rounded-full{background:linear-gradient(90deg,var(--accent),var(--accent-2)) !important;box-shadow:0 8px 30px rgba(166,76,166,0.14)}
+
+/* Make progress inner fills more visible (target common inline styles too) */
+[style*="width:"]{transition: width .6s cubic-bezier(.2,.9,.2,1) !important}
+
+/* Modal dialogs overlay */
+.fixed.inset-0.bg-black.bg-opacity-50{background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.6)) !important}
+.bg-white.rounded-2xl{background:linear-gradient(180deg, rgba(20,20,20,0.95), rgba(18,18,18,0.9)) !important;border:1px solid rgba(166,76,166,0.06) !important}
+
+/* Small text and muted */
+.text-sm, .muted{color:var(--muted) !important}
+
+/* Cards grid responsiveness (works with existing classes) */
+@media (max-width:980px){
+  .max-w-5xl{padding:12px}
+  .flex.items-center.justify-between{flex-direction:column;gap:12px}
+}
+
+@media (max-width:640px){
+  body{padding:12px}
+  .p-6{padding:12px}
+}
+
+/* Accessibility focus states for interactive items */
+[role], button, a, input[type="checkbox"]{transition:box-shadow .12s ease}
+
+/* Ensure readable fonts for headings inside current markup */
+.text-3xl{font-size:1.6rem;font-weight:700}
+.text-2xl{font-size:1.25rem;font-weight:700}
+
+/* Keep everything minimal and futuristic */
+.rounded-lg{border-radius:12px !important}

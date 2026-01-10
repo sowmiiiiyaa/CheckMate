@@ -1,169 +1,181 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
 :root{
-  --bg: #0d0d0d;
-  --panel: rgba(18,18,18,0.9);
-  --muted: #9aa0a6;
-  --text: #e6e6e9;
-  --accent: #a64ca6; /* neon purple */
-  --accent-2: #9b59b6;
-  --glass: rgba(255,255,255,0.03);
-  --radius: 12px;
+  /* Typography & colors per spec */
+  --bg: #f4f7fb;
+  --text-dark: #1a202c; /* dark text on light backgrounds */
+  --text-light: #ffffff; /* white text on gradients */
+  --surface-dark: rgba(16,18,22,0.66);
+  --muted: #6b7280;
+  --primary-1: #667eea; /* requested blue */
+  --primary-2: #764ba2; /* requested purple */
+  --gradient-primary: linear-gradient(90deg, var(--primary-1), var(--primary-2));
+  --main-card-shadow: 0 20px 40px rgba(0,0,0,0.10);
+  --subcard-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --card-radius: 16px; /* cards */
+  --btn-radius: 8px; /* buttons / progress */
+  --gap: 16px;
+  --transition: 200ms cubic-bezier(.2,.9,.3,1);
 }
 
-/* Base */
+/* Base reset */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0;padding:24px;background:var(--bg);color:var(--text);
-  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+  margin:0;padding:36px;background:var(--bg);color:var(--text-dark);
+  font-family: Inter, -apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
 
-/* Make main containers darker and add neon accents without touching structure */
-:root{
-  --bg: #0d0d0d;
-  --panel: rgba(18,18,18,0.9);
-  --muted: #9aa0a6;
-  --text: #e6e6e9;
-  --accent: #a64ca6; /* neon purple */
-  --accent-2: #9b59b6;
-  --glass: rgba(255,255,255,0.03);
-  --radius: 12px;
-  --card-padding: 12px; /* tightened spacing */
-}
-/* Shadow / glow */
-.shadow-lg{box-shadow: 0 6px 18px rgba(16,12,30,0.55), 0 0 18px rgba(166,76,166,0.05) !important}
-
-h1, h2, h3, h4{font-family:'Montserrat', 'Poppins', sans-serif;color:var(--accent)}
-
-/* Typography hierarchy */
-h1{font-size:28px;line-height:1.05;color:var(--text);font-weight:700}
-h2{font-size:18px;color:var(--accent);font-weight:600}
-.topic-name{font-size:16px;font-weight:600;color:var(--text)}
-
-.progress-percent{font-weight:700;color:var(--accent-2)}
-h1, h2, h3, h4{font-family:'Montserrat', 'Poppins', sans-serif;color:var(--accent)}
-.p-6, .p-8, .p-4, .p-3{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03);padding:var(--card-padding)}
-.text-gray-800, .text-gray-600, .text-gray-700{color:var(--text) !important}
-.mb-6, .mb-4, .mb-2{margin-bottom:8px}
-
-/* Reduce spacing for list items and cards */
-.task{padding:10px}
-.TopicNode, .mb-2{margin-bottom:8px}
-
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));box-shadow:0 4px 14px rgba(166,76,166,0.14);transition:width .5s cubic-bezier(.2,.9,.2,1)}
-
-[style*="width:"]{transition: width .6s cubic-bezier(.2,.9,.2,1) !important}
-
-/* Ensure good contrast on light/pastel containers (Tailwind bg-*-50, bg-white, etc.) */
-.bg-blue-50, .bg-purple-50, .bg-green-50, .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-white {
-  color: #0b1220 !important; /* near-black for best contrast on pastel backgrounds */
+/* Main centered card (applies to existing panel classes) */
+.p-6, .p-8, .card, .panel{
+  /* default panels are light surfaced so text is dark for good contrast */
+  background: rgba(255,255,255,0.96);
+  color: var(--text-dark);
+  border-radius: var(--card-radius);
+  padding:24px; /* per spec */
+  margin:12px 0; /* section spacing */
+  border:1px solid rgba(12,14,18,0.06);
+  transition: box-shadow var(--transition), transform var(--transition);
 }
 
-/* Specific selectors for topic titles/labels inside pale containers */
-.bg-blue-50 .topic-name, .bg-purple-50 .topic-name, .bg-green-50 .topic-name,
-.bg-gray-50 .topic-name, .bg-white .topic-name {
-  color: #0b1220 !important;
+/* Glassmorphism main card styling — more specific to avoid touching small cards */
+.main-card, .p-8.main, .p-8.centered, .p-8.max-w-5xl{
+  background: var(--surface-dark);
+  color: var(--text-light);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: var(--main-card-shadow);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  padding:24px; /* ensure main card padding */
+  border-radius: var(--card-radius);
+  transition: box-shadow var(--transition), transform var(--transition);
 }
 
-/* Also ensure utility text classes inside pale boxes become dark */
-.bg-blue-50 .text-gray-700, .bg-purple-50 .text-gray-700, .bg-green-50 .text-gray-700,
-.bg-gray-50 .text-gray-700, .bg-white .text-gray-700 {
-  color: #0b1220 !important;
+/* Target the primary header card placed directly under .max-w-5xl */
+.max-w-5xl > .bg-white.rounded-2xl.shadow-lg.p-8.mb-6{
+  background: var(--surface-dark) !important;
+  color: var(--text-light) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: var(--main-card-shadow) !important;
+  backdrop-filter: blur(10px) saturate(120%);
 }
 
-/* Accordion animation */
-.accordion{max-height:0;overflow:hidden;transition:max-height .36s ease,opacity .28s ease;padding:0}
-.accordion.open{max-height:2000px;padding-top:8px;padding-bottom:8px}
-.accordion .inner{padding-left:8px}
-
-/* Buttons — keep semantics but restyle visuals */
-button, .btn, input[type=button], input[type=submit]{
-  background: linear-gradient(135deg, rgba(166,76,166,0.18), rgba(155,89,182,0.08));
-  border: 1px solid rgba(166,76,166,0.12);
-  color:var(--text);padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;
-  transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
-}
-button:hover, .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(166,76,166,0.12)}
-button:focus{outline:3px solid rgba(166,76,166,0.14);outline-offset:4px}
-
-/* Inputs & selects */
-input, textarea, select{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:10px;color:var(--text);transition:box-shadow .15s ease,border-color .15s ease}
-input:focus, textarea:focus, select:focus{box-shadow:0 8px 30px rgba(166,76,166,0.08);border-color:var(--accent);outline:none}
-
-/* Custom checkbox visuals while preserving native behavior */
-input[type="checkbox"]{
-  appearance:none;-webkit-appearance:none;
-  width:22px;height:22px;border-radius:8px;
-  border:2px solid rgba(15,23,36,0.14);
-  background:#ffffff; /* visible base */
-  box-shadow:0 4px 10px rgba(2,6,23,0.35);
-  position:relative;cursor:pointer;vertical-align:middle;display:inline-block;flex:0 0 auto
-}
-input[type="checkbox"]:focus{box-shadow:0 0 0 6px rgba(166,76,166,0.14), 0 4px 12px rgba(2,6,23,0.35)}
-input[type="checkbox"]:checked{
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));border-color:transparent;
-  box-shadow:0 8px 28px rgba(166,76,166,0.28),0 0 10px rgba(155,89,182,0.14) inset
-}
-/* Draw a crisp checkmark using borders for consistent scaling */
-input[type="checkbox"]::after{
-  content:'';position:absolute;left:50%;top:50%;width:10px;height:6px;transform:translate(-50%,-60%) rotate(-45deg);
-  border-left:2.5px solid transparent;border-bottom:2.5px solid transparent;opacity:0;transition:opacity .12s ease, border-color .12s ease, transform .12s ease
-}
-input[type="checkbox"]:checked::after{border-left-color:#fff;border-bottom-color:#fff;opacity:1}
-
-/* Ensure checkboxes remain visible on pale/light utility backgrounds */
-.bg-blue-50 input[type="checkbox"], .bg-purple-50 input[type="checkbox"], .bg-green-50 input[type="checkbox"],
-.bg-gray-50 input[type="checkbox"], .bg-gray-100 input[type="checkbox"], .bg-white input[type="checkbox"]{
-  border-color: rgba(15,23,36,0.22);
-  background: #ffffff;
-  box-shadow: 0 3px 8px rgba(2,6,23,0.18) inset;
+/* Ensure inner text and controls in that specific header are readable */
+.max-w-5xl > .bg-white.rounded-2xl.shadow-lg.p-8.mb-6 h1,
+.max-w-5xl > .bg-white.rounded-2xl.shadow-lg.p-8.mb-6 .text-lg,
+.max-w-5xl > .bg-white.rounded-2xl.shadow-lg.p-8.mb-6 .progress-percent,
+.max-w-5xl > .bg-white.rounded-2xl.shadow-lg.p-8.mb-6 .text-3xl{
+  color: var(--text-light) !important;
 }
 
-/* When a checkbox sits on a very dark panel, give it a subtle tinted background */
-.min-h-screen .bg-white input[type="checkbox"], .bg-white input[type="checkbox"]{background:#fff}
+/* Keep the overall progress gradient vivid on the dark header */
+.max-w-5xl > .bg-white.rounded-2xl.shadow-lg.p-8.mb-6 .bg-gradient-to-r.from-blue-500.to-purple-500{
+  box-shadow: 0 8px 30px rgba(124,58,237,0.12);
+}
 
-/* Cards and list items */
-.p-6, .p-8, .p-4, .p-3{background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.03)}
-.mb-6, .mb-4, .mb-2{margin-bottom:12px}
+/* Ensure text contrast inside light/dark panels */
+.p-6 .topic-name, .p-8 .topic-name, .p-6 .subtopic-label, .p-8 .subtopic-label, .p-6 .progress-label, .p-8 .progress-label{
+  color: var(--text-dark);
+}
+.main-card .topic-name, .main-card .subtopic-label, .main-card .progress-label{
+  color: var(--text-light);
+}
 
+/* Typography */
+.h1, h2, h3, h4{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;margin:0}
+h1{font-size:32px;line-height:1.05;color:var(--text-light);font-weight:700}
+h2{font-size:20px;color:var(--text-light);font-weight:600}
+.section-title{font-size:20px;font-weight:600;color:var(--text-dark);}
+.topic-name{font-size:16px;font-weight:700;color:var(--text-light)}
+.subtopic-label{font-size:16px;color:var(--text-light);font-weight:500}
+.muted{color:var(--muted)}
+
+/* Layout helpers */
 .flex{display:flex}
 .items-center{align-items:center}
 .justify-between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:var(--gap)}
+
+/* Buttons — primary (blue→purple gradient) and subtle states */
+button, .btn, input[type=button], input[type=submit]{
+  color: var(--text-light);padding:10px 14px;border-radius:var(--btn-radius);border:none;font-weight:600;cursor:pointer;
+  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+}
+/* apply requested gradient only to Add and Bulk Add buttons that use common utility classes */
+button[class*="bg-green-600"], button[class*="bg-blue-600"]{
+  background: var(--gradient-primary);
+  color: var(--text-light);
+  box-shadow: 0 8px 28px rgba(102,126,234,0.12);
+}
+button:hover{transform:scale(1.02)}
+button:active{transform:scale(0.995)}
+.btn.ghost{background:transparent;border:1px solid rgba(12,14,18,0.06);color:var(--text-dark)}
+
+/* Small icon-button styles (delete icons etc.) */
+.icon-btn{background:transparent;border:none;color:var(--text-light);padding:6px;border-radius:8px;cursor:pointer;transition:transform var(--transition) ease, color var(--transition) ease}
+.icon-btn:hover{transform:scale(1.04);color:var(--primary-2)}
+.icon-btn:active{transform:scale(0.98)}
 
 /* Progress bars */
-.bg-white.bg-opacity-30, .bg-white.bg-opacity-30 > div{background:transparent !important}
-.w-full.bg-white.bg-opacity-30{background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:999px;border:1px solid rgba(255,255,255,0.03)}
-.bg-white.h-3.rounded-full > .bg-white.h-3.rounded-full{background:linear-gradient(90deg,var(--accent),var(--accent-2)) !important;box-shadow:0 8px 30px rgba(166,76,166,0.14)}
+.progress-wrap{background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:var(--btn-radius);padding:4px;border:1px solid rgba(255,255,255,0.04)}
+.progress-bar{height:18px;border-radius:var(--btn-radius);background:var(--gradient-primary);box-shadow:0 6px 22px rgba(118,75,162,0.12);transition:width var(--transition) ease}
+.progress-label{font-weight:700;color:var(--text-light);font-size:0.95rem}
 
-/* Make progress inner fills more visible (target common inline styles too) */
-[style*="width:"]{transition: width .6s cubic-bezier(.2,.9,.2,1) !important}
+/* Small topic progress */
+.topic-progress{height:8px;border-radius:var(--btn-radius);background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));overflow:hidden}
+.topic-progress > .progress-fill{height:100%;background:var(--gradient-primary);transition:width var(--transition) ease}
 
-/* Modal dialogs overlay */
-.fixed.inset-0.bg-black.bg-opacity-50{background:linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.6)) !important}
-.bg-white.rounded-2xl{background:linear-gradient(180deg, rgba(20,20,20,0.95), rgba(18,18,18,0.9)) !important;border:1px solid rgba(166,76,166,0.06) !important}
+/* Cards: subtopic items */
+.subtopic-card{background:rgba(255,255,255,0.02);border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:10px;transition:transform var(--transition) ease, box-shadow var(--transition) ease}
+.subtopic-card:hover{transform:translateY(-4px);box-shadow:var(--subcard-shadow)}
+.subtopic-card:active{transform:translateY(-2px)}
+/* If subtopic cards are placed inside light panels, make them visibly light with dark text */
+.p-6 .subtopic-card, .p-8 .subtopic-card{
+  background: rgba(255,255,255,0.96);
+  color: var(--text-dark);
+  border:1px solid rgba(12,14,18,0.04);
+  border-radius:12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+/* When subtopic cards sit inside the dark main-card, keep them subtle and inverted */
+.main-card .subtopic-card{
+  background: rgba(255,255,255,0.03);
+  color: var(--text-light);
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow: var(--subcard-shadow);
+}
 
-/* Small text and muted */
-.text-sm, .muted{color:var(--muted) !important}
+/* Accordion expand/collapse */
+.accordion{max-height:0;overflow:hidden;opacity:0;transition:max-height var(--transition) ease, opacity var(--transition) ease,padding var(--transition) ease}
+.accordion.open{max-height:2000px;opacity:1;padding-top:10px;padding-bottom:10px}
 
-/* Cards grid responsiveness (works with existing classes) */
+/* Delete icon micro-interaction */
+.delete-icon{color:rgba(255,255,255,0.65);transition:color var(--transition) ease, transform var(--transition) ease}
+.delete-icon:hover{color:#ff7b7b;transform:scale(1.06)}
+
+/* Inputs & checkboxes keep clarity */
+input, textarea, select{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:8px;color:var(--text-light);transition:box-shadow var(--transition) ease,border-color var(--transition) ease}
+input:focus, textarea:focus, select:focus{box-shadow:0 8px 30px rgba(102,126,234,0.06);border-color:var(--primary-1);outline:none}
+
+input[type="checkbox"]{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,0.14);background:transparent;cursor:pointer}
+input[type="checkbox"]:checked{background:linear-gradient(90deg,var(--primary-1),var(--primary-2));border-color:transparent}
+
+/* Responsive tweaks */
 @media (max-width:980px){
-  .max-w-5xl{padding:12px}
+  .max-w-5xl{padding:16px}
   .flex.items-center.justify-between{flex-direction:column;gap:12px}
 }
 
 @media (max-width:640px){
-  body{padding:12px}
+  body{padding:14px}
   .p-6{padding:12px}
+  h1{font-size:24px}
 }
 
-/* Accessibility focus states for interactive items */
-[role], button, a, input[type="checkbox"]{transition:box-shadow .12s ease}
-
-/* Ensure readable fonts for headings inside current markup */
-.text-3xl{font-size:1.6rem;font-weight:700}
-.text-2xl{font-size:1.25rem;font-weight:700}
-
-/* Keep everything minimal and futuristic */
+/* Utility tweaks */
+.text-sm{font-size:0.85rem}
 .rounded-lg{border-radius:12px !important}
+
+/* Ensure inline style width transitions (progress updates) use our timing */
+[style*="width:"]{transition:width var(--transition) ease !important}

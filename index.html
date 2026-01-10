@@ -576,6 +576,22 @@
                 Reset Progress
               </button>
               <button
+                onClick={() => {
+                  try {
+                    if (window.parent && typeof window.parent.load === 'function') {
+                      window.parent.load('habbit.html');
+                    } else {
+                      window.location.href = 'habbit.html';
+                    }
+                  } catch (e) {
+                    window.location.href = 'habbit.html';
+                  }
+                }}
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                ✅ Habits
+              </button>
+              <button
                 onClick={() => setShowAddModal(true)}
                 className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >

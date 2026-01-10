@@ -39,15 +39,28 @@
 
   const loadTopics = async () => {
     try {
-      const result = await window.storage.get('learning-topics');
-      if (result && result.value) {
-        setTopics(JSON.parse(result.value));
-      } else {
-        // Set default structure if no data exists
-        setTopics(getDefaultStructure());
+      // Prefer localStorage (so other pages can read the same data)
+      const raw = localStorage.getItem('learning-topics');
+      if (raw) {
+        setTopics(JSON.parse(raw));
+        setLoading(false);
+        return;
       }
+
+      // Fallback to window.storage API when localStorage is empty
+      if (window.storage && typeof window.storage.get === 'function') {
+        const result = await window.storage.get('learning-topics');
+        if (result && result.value) {
+          setTopics(JSON.parse(result.value));
+          setLoading(false);
+          return;
+        }
+      }
+
+      // No stored data — use defaults
+      setTopics(getDefaultStructure());
     } catch (error) {
-      console.log('No existing data, using defaults');
+      console.log('No existing data, using defaults', error);
       setTopics(getDefaultStructure());
     } finally {
       setLoading(false);
@@ -56,7 +69,12 @@
 
   const saveTopics = async (newTopics) => {
     try {
-      await window.storage.set('learning-topics', JSON.stringify(newTopics));
+      // Persist to localStorage so other pages (habbit.html) can read immediately
+      try { localStorage.setItem('learning-topics', JSON.stringify(newTopics)); } catch(e) {}
+      // Also call window.storage if available (keeps original behavior)
+      if (window.storage && typeof window.storage.set === 'function') {
+        await window.storage.set('learning-topics', JSON.stringify(newTopics));
+      }
     } catch (error) {
       console.error('Failed to save:', error);
     }

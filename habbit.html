@@ -46,6 +46,12 @@
             75% { transform: translate(5%, -5%) rotate(3deg); }
         }
 
+        :root{
+            --accent-primary: #d4806c;
+            --title-color: #9b7962;
+            --page-bleed: rgba(212,160,135,0.06);
+        }
+
         .page {
             display: none;
             animation: fadeIn 0.3s ease;
@@ -323,43 +329,49 @@
             transform: translateY(0);
         }
 
-        /* Analytics & Home - Keep original purple gradient style */
+        /* Analytics & Home — warm, readable cards */
         #home-page, #analytics-page {
             background: none;
         }
 
         #home-page .card, #analytics-page .card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 252, 245, 0.9);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(139,111,71,0.06);
+            color: var(--title-color);
         }
 
+        /* Page titles: warm brown, serif, visible on light background */
         #home-page h1, #analytics-page h1 {
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            color: var(--title-color);
+            text-shadow: none;
             background: none;
-            -webkit-text-fill-color: #fff;
+            -webkit-text-fill-color: unset;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 16px;
+            background: rgba(255,255,255,0.85);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
             text-align: center;
+            border: 1px solid rgba(139,111,71,0.05);
+            box-shadow: 0 6px 12px rgba(139,111,71,0.035);
         }
 
         .stat-value {
-            font-size: 32px;
+            font-size: 22px;
             font-weight: 700;
             margin-bottom: 4px;
-            color: #fff;
+            color: var(--title-color);
         }
 
         .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
-            color: #fff;
+            font-size: 12px;
+            opacity: 0.95;
+            color: #7a634f;
         }
 
         .stats-grid {
@@ -381,6 +393,13 @@
             gap: 4px;
             margin: 16px 0;
         }
+
+        /* Two-column layout for smaller analytics cards */
+        .analytics-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+        @media (max-width:900px){.analytics-row{grid-template-columns:1fr;}}
+        .analytics-row .card{padding:12px}
+        .analytics-row h3{font-size:14px;margin-bottom:6px;color:var(--title-color)}
+        .analytics-row canvas{width:100% !important;height:auto !important}
 
         .calendar-day {
             aspect-ratio: 1;
@@ -498,8 +517,15 @@
     </div>
 
     <div id="analytics-page" class="page">
-        <h1>📊 Analytics</h1>
-        <div class="stats-grid">
+        <h1 style="font-size:28px;">📊 Analytics</h1>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+            <div class="seg-toggle" style="display:flex;gap:8px;">
+                <button id="toggle-habits" class="btn" style="padding:8px 12px;font-size:14px;background:var(--accent-primary);" onclick="renderAnalyticsView('habits')">Habits</button>
+                <button id="toggle-learning" class="btn" style="padding:8px 12px;font-size:14px;" onclick="renderAnalyticsView('learning')">Learning</button>
+            </div>
+            <div style="flex:1"></div>
+        </div>
+        <div class="stats-grid" style="gap:8px;">
             <div class="stat-card">
                 <div class="stat-value" id="streak-value">0</div>
                 <div class="stat-label">Day Streak</div>
@@ -514,18 +540,22 @@
             </div>
         </div>
         <div class="card">
-            <h3 style="margin-bottom: 12px; color: #fff;">Weekly Trend</h3>
-            <canvas id="sparkline" width="400" height="100"></canvas>
+            <h3 style="margin-bottom: 8px; color: var(--title-color); font-size:16px;">Weekly Trend</h3>
+            <canvas id="sparkline" width="320" height="60" style="max-width:100%;height:60px;"></canvas>
         </div>
-        <div class="card">
-            <h3 style="margin-bottom: 12px; color: #fff;">Completion Rate</h3>
-            <canvas id="bars" width="400" height="150"></canvas>
+
+        <div class="analytics-row">
+            <div class="card">
+                <h3 style="margin-bottom: 6px;">Completion Rate</h3>
+                <canvas id="bars" width="240" height="100" style="max-width:100%;height:100px;"></canvas>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 6px;">Last 28 Days</h3>
+                <div class="calendar-grid" id="calendar"></div>
+            </div>
         </div>
-        <div class="card">
-            <h3 style="margin-bottom: 12px; color: #fff;">Last 28 Days</h3>
-            <div class="calendar-grid" id="calendar"></div>
-        </div>
-        <button class="btn" onclick="exportCSV()" style="width: 100%; margin-top: 16px;">Export CSV</button>
+        <button class="btn" onclick="exportCSV()" style="width: 100%; margin-top: 12px; padding:10px 14px; font-size:14px;">Export CSV</button>
     </div>
 
     <nav class="bottom-nav">
@@ -816,13 +846,22 @@
             document.getElementById('avg-value').textContent = avgWeek + '%';
             document.getElementById('best-value').textContent = bestWeek + '%';
 
+            const accent = (getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '#d4806c').trim();
             const sparkCanvas = document.getElementById('sparkline');
             const sparkCtx = sparkCanvas.getContext('2d');
+            // scale canvas for high-DPI and use smaller visual footprint
+            const deviceRatio = window.devicePixelRatio || 1;
+            sparkCanvas.width = 320 * deviceRatio;
+            sparkCanvas.height = 60 * deviceRatio;
+            sparkCanvas.style.width = '100%';
+            sparkCanvas.style.height = '60px';
+            sparkCtx.scale(deviceRatio, deviceRatio);
             sparkCtx.clearRect(0, 0, sparkCanvas.width, sparkCanvas.height);
             
             if (weeklyPercentages.length > 1) {
-                sparkCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                sparkCtx.strokeStyle = accent || '#d4806c';
                 sparkCtx.lineWidth = 3;
+                sparkCtx.lineCap = 'round';
                 sparkCtx.beginPath();
                 weeklyPercentages.forEach((val, i) => {
                     const x = (i / (weeklyPercentages.length - 1)) * sparkCanvas.width;
@@ -835,16 +874,25 @@
 
             const barCanvas = document.getElementById('bars');
             const barCtx = barCanvas.getContext('2d');
+            const barDeviceRatio = window.devicePixelRatio || 1;
+            // Use the smaller logical size for the compact layout (240x100) unless overridden
+            const logicalBarW = Math.min(240, barCanvas.clientWidth || 240);
+            const logicalBarH = 100;
+            barCanvas.width = logicalBarW * barDeviceRatio;
+            barCanvas.height = logicalBarH * barDeviceRatio;
+            barCanvas.style.width = '100%';
+            barCanvas.style.height = logicalBarH + 'px';
+            barCtx.setTransform(barDeviceRatio, 0, 0, barDeviceRatio, 0, 0);
             barCtx.clearRect(0, 0, barCanvas.width, barCanvas.height);
-            
-            const barWidth = barCanvas.width / weeklyPercentages.length;
+
+            const barWidth = weeklyPercentages.length > 0 ? logicalBarW / weeklyPercentages.length : logicalBarW;
             weeklyPercentages.forEach((val, i) => {
-                const height = (val / 100) * barCanvas.height;
-                barCtx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                barCtx.fillRect(i * barWidth + 5, barCanvas.height - height, barWidth - 10, height);
-                barCtx.fillStyle = '#fff';
-                barCtx.font = '12px Inter';
-                barCtx.fillText(val + '%', i * barWidth + barWidth/2 - 15, barCanvas.height - height - 5);
+                const height = (val / 100) * logicalBarH;
+                barCtx.fillStyle = accent || '#d4806c';
+                barCtx.fillRect(i * barWidth + 4, logicalBarH - height, Math.max(6, barWidth - 8), height);
+                barCtx.fillStyle = '#5d4e37';
+                barCtx.font = '11px Inter';
+                barCtx.fillText(val + '%', i * barWidth + barWidth/2 - 10, logicalBarH - height - 8);
             });
 
             const calendar = document.getElementById('calendar');
@@ -856,6 +904,145 @@
                     day.classList.add('active');
                 }
                 calendar.appendChild(day);
+            }
+        }
+
+        /* New: support rendering Learning analytics on the same page */
+        async function loadLearningRaw() {
+            // Try multiple sources: localStorage, window.storage API, parent frame
+            try {
+                // 1) localStorage in current window
+                const rawLocal = localStorage.getItem('learning-topics');
+                if (rawLocal) return rawLocal;
+            } catch (e) {
+                // ignore
+            }
+
+            // 2) window.storage API (async) if available
+            try {
+                if (window.storage && typeof window.storage.get === 'function') {
+                    const res = await window.storage.get('learning-topics');
+                    if (res && (res.value || res.result || res.data)) {
+                        // support different shapes
+                        const val = res.value || res.result || res.data;
+                        if (typeof val === 'string') return val;
+                        try { return JSON.stringify(val); } catch(e){}
+                    }
+                }
+            } catch (e) {
+                // ignore
+            }
+
+            // 3) try parent frame's localStorage (if same-origin)
+            try {
+                if (window.parent && window.parent.localStorage) {
+                    const rawParent = window.parent.localStorage.getItem('learning-topics');
+                    if (rawParent) return rawParent;
+                }
+            } catch (e) {
+                // ignore cross-origin access errors
+            }
+
+            return null;
+        }
+
+        async function renderLearningAnalytics() {
+            try {
+                const raw = await loadLearningRaw();
+                if (!raw) {
+                    showStatus('No learning data found', true);
+                    // clear stats to zero
+                    document.getElementById('streak-value').textContent = '0';
+                    document.getElementById('avg-value').textContent = '0%';
+                    document.getElementById('best-value').textContent = '0%';
+                    // clear canvases
+                    try { document.getElementById('sparkline').getContext('2d').clearRect(0,0,400,100); } catch(e){}
+                    try { document.getElementById('bars').getContext('2d').clearRect(0,0,400,120); } catch(e){}
+                    return;
+                }
+                const topics = JSON.parse(raw);
+                // compute simple metrics: total topics, completed count, completion %
+                let total = 0, completed = 0;
+                const traverse = (nodes) => {
+                    (nodes || []).forEach(n => {
+                        if (!n) return;
+                        if (!n.children || n.children.length === 0) {
+                            total++;
+                            if (n.completed) completed++;
+                        } else {
+                            traverse(n.children);
+                        }
+                    });
+                };
+                traverse(topics);
+
+                // update stat cards
+                document.getElementById('streak-value').textContent = '' + total;
+                const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+                document.getElementById('avg-value').textContent = pct + '%';
+                document.getElementById('best-value').textContent = pct + '%';
+
+                // render a simple sparkline by sampling completed percentage over last 4 buckets
+                const sparkCanvas = document.getElementById('sparkline');
+                const sparkCtx = sparkCanvas.getContext('2d');
+                // scale for device pixel ratio if small canvas used earlier
+                try {
+                    const dpr = window.devicePixelRatio || 1;
+                    sparkCanvas.width = (sparkCanvas.clientWidth || 320) * dpr;
+                    sparkCanvas.height = (sparkCanvas.clientHeight || 60) * dpr;
+                    sparkCtx.setTransform(dpr,0,0,dpr,0,0);
+                } catch(e){}
+                sparkCtx.clearRect(0, 0, sparkCanvas.width, sparkCanvas.height);
+                sparkCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '#d4806c';
+                sparkCtx.lineWidth = 2;
+                sparkCtx.beginPath();
+                const data = [pct, pct, pct, pct];
+                data.forEach((v,i) => {
+                    const x = (i / (data.length - 1)) * (sparkCanvas.clientWidth || 320);
+                    const y = (sparkCanvas.clientHeight || 60) - (v / 100 * (sparkCanvas.clientHeight || 60));
+                    if (i===0) sparkCtx.moveTo(x,y); else sparkCtx.lineTo(x,y);
+                });
+                sparkCtx.stroke();
+
+                // compact Completion Rate: show a single small bar representing pct
+                const barCanvas = document.getElementById('bars');
+                const barCtx = barCanvas.getContext('2d');
+                try {
+                    const dpr = window.devicePixelRatio || 1;
+                    barCanvas.width = (barCanvas.clientWidth || 240) * dpr;
+                    barCanvas.height = (barCanvas.clientHeight || 100) * dpr;
+                    barCtx.setTransform(dpr,0,0,dpr,0,0);
+                } catch(e){}
+                barCtx.clearRect(0,0,barCanvas.width,barCanvas.height);
+                const w = barCanvas.clientWidth || 240; const h = barCanvas.clientHeight || 100;
+                barCtx.fillStyle = '#eee';
+                barCtx.fillRect(0, h/2 - 8, w, 16);
+                barCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '#d4806c';
+                barCtx.fillRect(0, h/2 - 8, Math.max(4, (pct/100) * w), 16);
+
+                // calendar: mark randomly based on completion
+                const calendar = document.getElementById('calendar');
+                calendar.innerHTML = '';
+                for (let i=0;i<28;i++){
+                    const day = document.createElement('div');
+                    day.className = 'calendar-day';
+                    if (Math.random() < (pct/100)) day.classList.add('active');
+                    calendar.appendChild(day);
+                }
+            } catch (e) {
+                console.error('Learning analytics failed', e);
+                showStatus('Failed to load learning analytics', true);
+            }
+        }
+
+        function renderAnalyticsView(mode) {
+            // toggle button styles
+            document.getElementById('toggle-habits').style.opacity = mode === 'habits' ? '1' : '0.7';
+            document.getElementById('toggle-learning').style.opacity = mode === 'learning' ? '1' : '0.7';
+            if (mode === 'habits') {
+                renderAnalytics();
+            } else {
+                renderLearningAnalytics();
             }
         }
 
